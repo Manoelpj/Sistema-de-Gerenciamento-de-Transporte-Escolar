@@ -6,8 +6,8 @@ import TopicoCardAluno from "./TopicoCardAluno";
 
 interface CardAlunosProps {
     aluno: Aluno;
-    onUpdate?: () => void;
-    onDelete?: (alunoId: number) => void;
+    onUpdate: () => void;
+    onDelete: (alunoId: number) => void;
 }
 
 export default function CardAlunos({ aluno, onUpdate, onDelete }: CardAlunosProps){
@@ -60,8 +60,8 @@ export default function CardAlunos({ aluno, onUpdate, onDelete }: CardAlunosProp
 
             <div className='flex flex-row gap-9 justify-center mt-0.5'>
                 <div className='flex flex-row gap-1'>
-                    <BotaoUpdate aluno={aluno} onUpdate={onUpdate || (() => {})} />
-                    <BotaoDesactivate aluno={aluno} onDelete={onDelete || (() => {})} />
+                    <BotaoUpdate aluno={aluno} onUpdate={onUpdate!} />
+                    <BotaoDesactivate aluno={aluno} onDelete={onDelete!} />
                 </div>
                 <BotaoDetail aluno={aluno} />
             </div>

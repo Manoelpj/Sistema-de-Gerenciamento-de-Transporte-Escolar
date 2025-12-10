@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import type { Aluno } from "../../../../types/Aluno";
-import { AlunosService } from "../../../../data/alunosService";
 
 interface ModalUpdateAlunoProps {
   isOpen: boolean;
@@ -9,6 +8,8 @@ interface ModalUpdateAlunoProps {
   onUpdate: () => void;
 }
 
+const API_URL = "http://localhost:8000/api";
+
 export default function ModalUpdateAluno({
   isOpen,
   aluno,
@@ -16,9 +17,12 @@ export default function ModalUpdateAluno({
   onUpdate,
 }: ModalUpdateAlunoProps) {
   const [formData, setFormData] = useState<Aluno>(aluno);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setFormData(aluno);
+    setError(null);
   }, [aluno, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -29,11 +33,42 @@ export default function ModalUpdateAluno({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    AlunosService.atualizar(formData);
-    onUpdate();
-    onClose();
+    setLoading(true);
+    setError(null);
+
+    // Mapear dados do frontend para o backend (camelCase -> snake_case)
+    const dataToSend = {
+      nome: formData.nome,
+      responsavel_nome: formData.responsavelNome,
+      endereco: formData.endereco,
+      turno: formData.turno,
+      tipo: formData.tipo,
+      forma_pagamento: formData.formaPagamento,
+      escola: formData.escola,
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/alunos/${aluno.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Erro ao atualizar aluno");
+      }
+
+      onUpdate();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      console.error("Erro ao atualizar:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -50,6 +85,12 @@ export default function ModalUpdateAluno({
             ×
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -106,9 +147,9 @@ export default function ModalUpdateAluno({
               required
             >
               <option value="">Selecione um turno</option>
-              <option value="Matutino">Matutino</option>
-              <option value="Vespertino">Vespertino</option>
-              <option value="Noturno">Noturno</option>
+              <option value="matutino">Matutino</option>
+              <option value="vespertino">Vespertino</option>
+              <option value="integral">Integral</option>
             </select>
           </div>
 
@@ -142,11 +183,10 @@ export default function ModalUpdateAluno({
               required
             >
               <option value="">Selecione uma forma de pagamento</option>
-              <option value="Dinheiro">Dinheiro</option>
-              <option value="Cartão de Crédito">Cartão de Crédito</option>
-              <option value="Cartão de Débito">Cartão de Débito</option>
-              <option value="Boleto">Boleto</option>
-              <option value="PIX">PIX</option>
+              <option value="pix">PIX</option>
+              <option value="cartao">Cartão</option>
+              <option value="boleto">Boleto</option>
+              <option value="dinheiro">Dinheiro</option>
             </select>
           </div>
 
@@ -174,9 +214,10 @@ export default function ModalUpdateAluno({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-[#294A5A] text-white rounded-md hover:bg-[#1f3644] transition-colors"
+              disabled={loading}
+              className="px-4 py-2 bg-[#294A5A] text-white rounded-md hover:bg-[#1f3644] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Salvar Alterações
+              {loading ? "Salvando..." : "Salvar Alterações"}
             </button>
           </div>
         </form>

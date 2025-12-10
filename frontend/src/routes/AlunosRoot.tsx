@@ -1,19 +1,56 @@
 import { useState } from "react";
+import { useLoaderData } from "react-router";
 import CardAlunos from "../components/main/alunos/CardAlunos";
 import TituloGenerico from "../components/main/TituloGenerico";
-import { AlunosService } from "../data/alunosService";
+import { mapApiToAluno } from "../utils/alunoMapper";
 import type { Aluno } from "../types/Aluno";
 
-export default function AlunosRoot(){
-    const [alunos, setAlunos] = useState<Aluno[]>(() => AlunosService.listar());
+const API_URL = "http://localhost:8000/api";
 
-    const handleUpdate = () => {
-        setAlunos(AlunosService.listar());
+export default function AlunosRoot(){
+    const initialAlunos = useLoaderData() as Aluno[];
+    const [alunos, setAlunos] = useState<Aluno[]>(initialAlunos);
+
+    const handleUpdate = async () => {
+        try {
+            console.log("Recarregando lista de alunos...");
+            const response = await fetch(`${API_URL}/alunos/`);
+            console.log("Resposta da API recebida:", response.status);
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Dados retornados da API:", data);
+                // Mapear dados da API para o formato do frontend
+                const updated = Array.isArray(data) ? data.map(mapApiToAluno) : [];
+                console.log("Alunos mapeados:", updated);
+                console.log("ANTES DE SETALUNOS - length:", updated.length);
+                setAlunos(updated);
+                console.log("DEPOIS DE SETALUNOS - tentei atualizar");
+                console.log("Estado atualizado com", updated.length, "alunos");
+            } else {
+                console.error("Erro ao carregar lista - Status:", response.status);
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar lista de alunos:", error);
+        }
     };
 
-    const handleDelete = (alunoId: number) => {
-        AlunosService.remover(alunoId);
-        setAlunos(AlunosService.listar());
+    const handleDelete = async (alunoId: number) => {
+        try {
+            console.log("Iniciando delete do aluno:", alunoId);
+            const response = await fetch(`${API_URL}/alunos/${alunoId}/`, {
+                method: "DELETE",
+            });
+            console.log("Response status:", response.status);
+            if (response.ok) {
+                console.log("Delete bem-sucedido, recarregando lista");
+                await handleUpdate();
+                console.log("handleUpdate completou, UI deve estar atualizada");
+            } else {
+                console.error("Erro ao deletar - Status:", response.status);
+            }
+        } catch (error) {
+            console.error("Erro ao deletar aluno:", error);
+        }
     };
 
     return(
@@ -23,7 +60,7 @@ export default function AlunosRoot(){
             texto="Todos os alunos"
             />
             
-            <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-6 mt-6">
                 {alunos.map((aluno) => (
                     <CardAlunos 
                         key={aluno.id} 

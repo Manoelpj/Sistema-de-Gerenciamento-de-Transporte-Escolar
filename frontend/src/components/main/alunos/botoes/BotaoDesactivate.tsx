@@ -7,8 +7,12 @@ interface BotaoDesactivateProps {
 
 export default function BotaoDesactivate({ aluno, onDelete }: BotaoDesactivateProps) {
   const handleDelete = () => {
+    console.log("Clicou no botão desativar para aluno:", aluno.nome, "ID:", aluno.id);
     if (window.confirm(`Tem certeza que deseja excluir o aluno ${aluno.nome}?`)) {
+      console.log("Confirmado, chamando onDelete com ID:", aluno.id);
       onDelete(aluno.id);
+    } else {
+      console.log("Delete cancelado");
     }
   };
 
