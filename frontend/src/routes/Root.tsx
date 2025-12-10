@@ -5,7 +5,9 @@ export default function Root(){
     return(
         <div className="flex flex-row ">
             <Aside/>
-            <Outlet/>
+            <div className="ml-[300px] mt-[40px]">
+                <Outlet/>
+            </div>
             {/* <Footer/> */}
         </div>
     );
