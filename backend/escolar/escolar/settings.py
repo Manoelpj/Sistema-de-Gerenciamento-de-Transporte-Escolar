@@ -45,9 +45,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost:8000",
 ]
 
-AUTH_USER_MODEL = 'api.User'
-
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
