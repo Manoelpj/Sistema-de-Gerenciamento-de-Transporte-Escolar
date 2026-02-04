@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import AlunoViewSet
+from rest_framework_simplejwt.views import TokenRefreshView
+from .views import AlunoViewSet, RegisterView, LoginView, LogoutView, MeView
 
 # Router para registrar automaticamente os endpoints do ViewSet
 router = DefaultRouter()
@@ -8,4 +9,10 @@ router.register(r'alunos', AlunoViewSet, basename='aluno')
 
 urlpatterns = [
     path('', include(router.urls)),
+    # Rotas de autenticação
+    path('auth/register/', RegisterView.as_view(), name='register'),
+    path('auth/login/', LoginView.as_view(), name='login'),
+    path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/me/', MeView.as_view(), name='me'),
 ]

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Aluno } from "../../../../types/Aluno";
+import { AlunosApi } from "../../../../services/api";
 
 interface ModalUpdateAlunoProps {
   isOpen: boolean;
@@ -7,8 +8,6 @@ interface ModalUpdateAlunoProps {
   onClose: () => void;
   onUpdate: () => void;
 }
-
-const API_URL = "http://localhost:8000/api";
 
 export default function ModalUpdateAluno({
   isOpen,
@@ -38,29 +37,8 @@ export default function ModalUpdateAluno({
     setLoading(true);
     setError(null);
 
-    // Mapear dados do frontend para o backend (camelCase -> snake_case)
-    const dataToSend = {
-      nome: formData.nome,
-      responsavel_nome: formData.responsavelNome,
-      endereco: formData.endereco,
-      turno: formData.turno,
-      tipo: formData.tipo,
-      forma_pagamento: formData.formaPagamento,
-      escola: formData.escola,
-    };
-
     try {
-      const response = await fetch(`${API_URL}/alunos/${aluno.id}/`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Erro ao atualizar aluno");
-      }
-
+      await AlunosApi.atualizar(aluno.id, formData);
       onUpdate();
       onClose();
     } catch (err) {

@@ -1,57 +1,68 @@
-import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useState, useEffect } from "react";
 import CardAlunos from "../components/main/alunos/CardAlunos";
 import TituloGenerico from "../components/main/TituloGenerico";
-import { mapApiToAluno } from "../utils/alunoMapper";
+import { AlunosApi } from "../services/api";
 import type { Aluno } from "../types/Aluno";
 
-const API_URL = "http://localhost:8000/api";
-
 export default function AlunosRoot(){
-    const initialAlunos = useLoaderData() as Aluno[];
-    const [alunos, setAlunos] = useState<Aluno[]>(initialAlunos);
+    const [alunos, setAlunos] = useState<Aluno[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Carrega alunos ao montar o componente
+    useEffect(() => {
+        loadAlunos();
+    }, []);
+
+    const loadAlunos = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await AlunosApi.listar();
+            setAlunos(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Erro ao carregar alunos");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleUpdate = async () => {
-        try {
-            console.log("Recarregando lista de alunos...");
-            const response = await fetch(`${API_URL}/alunos/`);
-            console.log("Resposta da API recebida:", response.status);
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Dados retornados da API:", data);
-                // Mapear dados da API para o formato do frontend
-                const updated = Array.isArray(data) ? data.map(mapApiToAluno) : [];
-                console.log("Alunos mapeados:", updated);
-                console.log("ANTES DE SETALUNOS - length:", updated.length);
-                setAlunos(updated);
-                console.log("DEPOIS DE SETALUNOS - tentei atualizar");
-                console.log("Estado atualizado com", updated.length, "alunos");
-            } else {
-                console.error("Erro ao carregar lista - Status:", response.status);
-            }
-        } catch (error) {
-            console.error("Erro ao atualizar lista de alunos:", error);
-        }
+        await loadAlunos();
     };
 
     const handleDelete = async (alunoId: number) => {
         try {
-            console.log("Iniciando delete do aluno:", alunoId);
-            const response = await fetch(`${API_URL}/alunos/${alunoId}/`, {
-                method: "DELETE",
-            });
-            console.log("Response status:", response.status);
-            if (response.ok) {
-                console.log("Delete bem-sucedido, recarregando lista");
-                await handleUpdate();
-                console.log("handleUpdate completou, UI deve estar atualizada");
-            } else {
-                console.error("Erro ao deletar - Status:", response.status);
-            }
-        } catch (error) {
-            console.error("Erro ao deletar aluno:", error);
+            await AlunosApi.deletar(alunoId);
+            await loadAlunos();
+        } catch (err) {
+            console.error("Erro ao deletar aluno:", err);
         }
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#294A5A]"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-4">
+                <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                    {error}
+                    <button 
+                        onClick={loadAlunos}
+                        className="ml-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return(
         <div>

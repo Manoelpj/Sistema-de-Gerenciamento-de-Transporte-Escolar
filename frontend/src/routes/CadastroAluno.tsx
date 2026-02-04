@@ -1,8 +1,76 @@
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Form } from "react-router";
+import { AlunosApi } from "../services/api";
+import type { Aluno } from "../types/Aluno";
+
+type AlunoFormData = Omit<Aluno, "id">;
+
+const initialFormData: AlunoFormData = {
+  nome: "",
+  responsavelNome: "",
+  endereco: "",
+  turno: "",
+  tipo: "",
+  formaPagamento: "",
+  escola: "",
+};
 
 export default function CadastroAluno() {
   const navigate = useNavigate();
+  
+  // Estado reativo do formulário usando useState (equivalente a Signals do Angular)
+  const [formData, setFormData] = useState<AlunoFormData>(initialFormData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Handler para atualizar campos do formulário
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handler para reset do formulário
+  const handleReset = () => {
+    setFormData(initialFormData);
+    setError(null);
+    setSuccess(false);
+  };
+
+  // Handler para submit do formulário
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    // Validação básica
+    if (!formData.nome || !formData.responsavelNome || !formData.endereco) {
+      setError("Por favor, preencha todos os campos obrigatórios");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await AlunosApi.criar(formData);
+      setSuccess(true);
+      setFormData(initialFormData);
+      
+      // Redireciona após 1.5s
+      setTimeout(() => {
+        navigate("/alunos/");
+      }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao cadastrar aluno");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -16,7 +84,19 @@ export default function CadastroAluno() {
           </p>
         </div>
 
-        <Form method="post" className="bg-white p-8 rounded-lg shadow-md space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-6">
+          {error && (
+            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+              Aluno cadastrado com sucesso! Redirecionando...
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Nome */}
             <div className="md:col-span-2">
@@ -27,6 +107,8 @@ export default function CadastroAluno() {
                 type="text"
                 id="nome"
                 name="nome"
+                value={formData.nome}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294A5A]"
                 placeholder="Ex: João Silva"
@@ -34,7 +116,7 @@ export default function CadastroAluno() {
             </div>
 
             {/* Responsável */}
-            <div>
+            <div className="md:col-span-2">
               <label htmlFor="responsavelNome" className="block text-sm font-medium text-[#294A5A] mb-2">
                 Nome do Responsável *
               </label>
@@ -42,6 +124,8 @@ export default function CadastroAluno() {
                 type="text"
                 id="responsavelNome"
                 name="responsavelNome"
+                value={formData.responsavelNome}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294A5A]"
                 placeholder="Ex: Maria Silva"
@@ -57,6 +141,8 @@ export default function CadastroAluno() {
                 type="text"
                 id="endereco"
                 name="endereco"
+                value={formData.endereco}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294A5A]"
                 placeholder="Ex: Rua Principal, 123"
@@ -71,6 +157,8 @@ export default function CadastroAluno() {
               <select
                 id="turno"
                 name="turno"
+                value={formData.turno}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294A5A]"
               >
@@ -89,6 +177,8 @@ export default function CadastroAluno() {
               <select
                 id="tipo"
                 name="tipo"
+                value={formData.tipo}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294A5A]"
               >
@@ -107,6 +197,8 @@ export default function CadastroAluno() {
               <select
                 id="formaPagamento"
                 name="formaPagamento"
+                value={formData.formaPagamento}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294A5A]"
               >
@@ -127,6 +219,8 @@ export default function CadastroAluno() {
                 type="text"
                 id="escola"
                 name="escola"
+                value={formData.escola}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294A5A]"
                 placeholder="Ex: Colégio Pinheiros"
@@ -137,18 +231,20 @@ export default function CadastroAluno() {
           <div className="flex gap-4 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-[#294A5A] text-white py-2 px-4 rounded-lg hover:bg-[#1f3a47] transition-colors font-medium"
+              disabled={loading}
+              className="flex-1 bg-[#294A5A] text-white py-2 px-4 rounded-lg hover:bg-[#1f3a47] transition-colors font-medium disabled:opacity-50"
             >
-              Cadastrar Aluno
+              {loading ? "Cadastrando..." : "Cadastrar Aluno"}
             </button>
             <button
-              type="reset"
+              type="button"
+              onClick={handleReset}
               className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors font-medium"
             >
               Limpar
             </button>
           </div>
-        </Form>
+        </form>
 
         <button
           onClick={() => navigate("/alunos/")}

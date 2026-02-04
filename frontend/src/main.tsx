@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { RouterProvider } from "react-router";
 import { createRoot } from "react-dom/client";
-import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
+import { PrimeReactProvider } from 'primereact/api';
 import { router } from "./router";
 import "./index.css"
 

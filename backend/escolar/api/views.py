@@ -1,9 +1,86 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate, get_user_model
 from .models import Aluno
-from .serializers import AlunoSerializer
+from .serializers import AlunoSerializer, UserSerializer, LoginSerializer
+
+User = get_user_model()
+
+
+class RegisterView(APIView):
+    """View para registro de novos usuários"""
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'tokens': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginView(APIView):
+    """View para login de usuários"""
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(
+                email=serializer.validated_data['email'],
+                password=serializer.validated_data['password']
+            )
+            if user:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'user': UserSerializer(user).data,
+                    'tokens': {
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                    }
+                })
+            return Response(
+                {'error': 'Credenciais inválidas'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    """View para logout de usuários"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh')
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            return Response({'detail': 'Logout realizado com sucesso'})
+        except Exception:
+            return Response(
+                {'error': 'Token inválido'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class MeView(APIView):
+    """View para obter dados do usuário autenticado"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
 
 
 class AlunoViewSet(viewsets.ModelViewSet):
@@ -21,7 +98,7 @@ class AlunoViewSet(viewsets.ModelViewSet):
     
     queryset = Aluno.objects.filter(ativo=True)
     serializer_class = AlunoSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Permite filtrar alunos por escola e outros parâmetros"""

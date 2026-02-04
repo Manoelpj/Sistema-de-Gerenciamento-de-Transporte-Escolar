@@ -1,12 +1,34 @@
+import { useNavigate } from "react-router";
 import LinkNavegacao from "./LinkNavegacao";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Aside(){
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/login");
+    };
+
     return(
         <aside className="border-r-[2px] border-[#294A5A]
         w-[270px] h-[565px] fixed
         ">
             <nav className="ml-[10px]">
-                {/* por a logo aq */}
+                {/* Informações do usuário */}
+                {user && (
+                    <div className="mb-4 p-2 bg-gray-100 rounded-lg">
+                        <p className="text-sm text-[#294A5A] font-medium">{user.username}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <button
+                            onClick={handleLogout}
+                            className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
+                        >
+                            Sair
+                        </button>
+                    </div>
+                )}
 
                 <div className="mb-[10px]">
                     <span className="text-[#888888] text-[16px]">Início</span>
