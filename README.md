@@ -1,4 +1,4 @@
-# 🚐 Sistema de Gerenciamento de Transporte Escolar (SGPA)
+# 🚐 Sistema de Gerenciamento de Transporte Escolar
 
 > **Status do Projeto:** 🟢 Em Desenvolvimento  
 > Sistema centralizado para controle de pagamentos, gestão de fluxo de alunos e otimização logística de rotas escolares.
