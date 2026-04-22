@@ -38,6 +38,9 @@ jobs:
       - name: Verificar integridade do projeto Django
         run: python manage.py check
 
+      - name: Verificar se há deprecações
+        run: python -W error::DeprecationWarning manage.py check
+
       - name: Verificar migrações pendentes
         run: python manage.py makemigrations --check --dry-run
 
