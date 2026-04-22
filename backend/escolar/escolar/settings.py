@@ -89,6 +89,7 @@ SWAGGER_SETTINGS = {
     },
     'USE_SESSION_AUTH': False,
 }
+SWAGGER_USE_COMPAT_RENDERERS = False
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
