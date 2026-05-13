@@ -1,0 +1,23 @@
+name: Security Scan (OWASP)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  depcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Escolar'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --failOnCVSS 7
