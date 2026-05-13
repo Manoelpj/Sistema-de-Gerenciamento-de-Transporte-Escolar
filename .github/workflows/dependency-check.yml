@@ -10,16 +10,17 @@ jobs:
   depcheck:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v3
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar arquivo de dependências
+        run: cp backend/escolar/requirements.txt ./requirements.txt
 
       - name: run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
-          project: 'Escolar'
-          path: '.'
+          project: 'Backend Escolar'
+          path: './requirements.txt'
           format: 'HTML'
           args: >
-            --scan "backend/escolar"
             --failOnCVSS 0
-            --exclude "frontend/**"
