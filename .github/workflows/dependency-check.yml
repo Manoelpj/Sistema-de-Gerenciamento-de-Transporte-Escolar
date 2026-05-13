@@ -17,7 +17,8 @@ jobs:
         uses: dependency-check/Dependency-Check_Action@main
         with:
           project: 'Escolar'
-          path: './backend/escolar'
+          path: '.'
           format: 'HTML'
           args: >
+            --scan "backend/escolar"
             --failOnCVSS 0
