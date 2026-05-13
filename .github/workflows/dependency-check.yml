@@ -27,6 +27,8 @@ jobs:
           args: >
             --scan ./backend/escolar
             --failOnCVSS 5
+            --exclude "**/node_modules/**"
+            --exclude "**package-lock.json**"
 
       - name: Upload do relatório
         uses: actions/upload-artifact@v4
