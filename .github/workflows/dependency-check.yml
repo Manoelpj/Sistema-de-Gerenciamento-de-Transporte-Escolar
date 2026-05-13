@@ -21,7 +21,6 @@ jobs:
         uses: dependency-check/Dependency-Check_Action@main
         with:
           project: backend-escolar
-          path: ./backend/escolar
           format: HTML
           out: reports
           args: >
