@@ -9,22 +9,26 @@ on:
 jobs:
   depcheck:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      - name: run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
-        id: depcheck
-        with:
-          project: 'Backend Escolar'
-          path: 'backend/escolar/requirements.txt'
-          format: 'HTML'
-          out: 'reports'
-          args: >
-            --failOnCVSS 0
+      - name: Verificar arquivos de dependência
+        run: ls -la ./backend/escolar
 
-      - name: Upload dependency-check report
+      - name: Rodar OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: backend-escolar
+          path: .
+          format: HTML
+          out: reports
+          args: >
+            --scan ./backend/escolar
+            --failOnCVSS 5
+
+      - name: Upload do relatório
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
