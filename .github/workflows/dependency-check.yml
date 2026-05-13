@@ -22,3 +22,4 @@ jobs:
           args: >
             --scan "backend/escolar"
             --failOnCVSS 0
+            --exclude "frontend/**"
