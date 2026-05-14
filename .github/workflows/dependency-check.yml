@@ -1,0 +1,36 @@
+name: Security Scan (OWASP)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  depcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Verificar arquivos de dependência
+        run: ls -la ./backend/escolar
+
+      - name: Rodar OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: backend-escolar
+          path: .
+          format: HTML
+          out: reports
+          args: >
+            --scan ./backend/escolar
+            --failOnCVSS 5
+
+      - name: Upload do relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: reports
