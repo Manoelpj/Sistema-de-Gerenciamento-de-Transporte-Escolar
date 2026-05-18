@@ -4,8 +4,8 @@ from .views import AlunoViewSet
 
 # Router para registrar automaticamente os endpoints do ViewSet
 router = DefaultRouter()
-router.register(r'alunos', AlunoViewSet, basename='aluno')
+router.register(r"alunos", AlunoViewSet, basename="aluno")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]
