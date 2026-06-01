@@ -57,7 +57,7 @@ jobs:
 
       - name: Checar código duplicado com JSCPD
         run: 
-          npx jscp backend
+          npx jscpd backend
 
       - name: Verificar migrações pendentes
         run: python manage.py makemigrations --check --dry-run
