@@ -53,11 +53,11 @@ jobs:
 
       - name: Checar código duplicado com Pylint
         run: 
-          pylint --disable=all --enable=duplicate-code --min-similarity-lines=8
+          pylint . --disable=all --enable=duplicate-code --min-similarity-lines=8
 
       - name: Checar código duplicado com JSCPD
         run: 
-          npx jscpd backend
+          npx jscpd .
 
       - name: Verificar migrações pendentes
         run: python manage.py makemigrations --check --dry-run
