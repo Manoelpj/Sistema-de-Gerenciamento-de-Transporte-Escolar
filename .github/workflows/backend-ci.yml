@@ -53,7 +53,7 @@ jobs:
 
       - name: Checar código duplicado com Pylint
         run: 
-          pylint backend --disable=all --enable=duplicate-code --min-similarity-lines=8
+          pylint --disable=all --enable=duplicate-code --min-similarity-lines=8
 
       - name: Checar código duplicado com JSCPD
         run: 
