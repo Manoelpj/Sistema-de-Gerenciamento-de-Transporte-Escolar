@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "psycopg2",
     "rest_framework_simplejwt",
+    "django_extensions",
     "api",
 ]
 
