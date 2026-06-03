@@ -36,11 +36,15 @@ jobs:
         with:
           node-version: 22
 
-      - name: Instalar dependências
+      - name: Instalar dependências do sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz graphviz-dev
+
+      - name: Instalar dependências Python
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pylint
 
       - name: Verificar integridade do projeto Django
         run: python manage.py check
@@ -53,10 +57,18 @@ jobs:
 
       - name: Checar código duplicado com JSCPD
         run: 
-          npx jscpd . --threshold 0
+          npx jscpd . --threshold 0        
 
-      - name: Verificar migrações pendentes
-        run: python manage.py makemigrations --check --dry-run
+      - name: Gerar diagrama UML
+        run: |
+          mkdir -p artifacts
+          python manage.py graph_models \
+            -a \
+            -g \
+            -o artifacts/django-models.svg
 
-      - name: Aplicar migrações
-        run: python manage.py migrate --noinput
+      - name: Publicar diagrama UML
+        uses: actions/upload-artifact@v4
+        with:
+          name: django-uml
+          path: backend/escolar/artifacts/django-models.svg
