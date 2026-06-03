@@ -3,7 +3,7 @@ astroid==4.0.4
 black==26.5.1
 click==8.4.1
 dill==0.4.1
-Django==6.0.5
+Django==6.0.6
 django-cors-headers==4.9.0
 django-extensions==4.1
 djangorestframework==3.17.1
