@@ -26,7 +26,7 @@ pyparsing==3.3.2
 pytokens==0.4.1
 pytz==2026.2
 PyYAML==6.0.3
-setuptools==78.1.1
+setuptools==82.0.1
 smmap==5.0.3
 sqlparse==0.5.5
 tomlkit==0.15.0
